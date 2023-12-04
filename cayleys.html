@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cayley Graph Visualization</title>
+    <style>
+        body { margin: 0; }
+        canvas { display: block; }
+    </style>
+</head>
+<body>
+    <script type="module">
+        import * as THREE from 'https://threejsfundamentals.org/threejs/resources/threejs/r125/build/three.module.js';
+        import {OrbitControls} from 'https://threejsfundamentals.org/threejs/resources/threejs/r125/examples/jsm/controls/OrbitControls.js';
+
+        // Replace this function with your group elements and generators logic
+        function getCayleyGraph() {
+            const groupElements = [1, 2, 3, 4];
+            const generators = [[1, 2], [2, 3]];
+
+            const cayleyGraph = [];
+
+            // Add edges based on group actions with generators
+            for (const element of groupElements) {
+                for (const generator of generators) {
+                    const product = generator.map(g => (element + g) % groupElements.length);
+                    cayleyGraph.push([element, ...product]);
+                }
+            }
+
+            return cayleyGraph;
+        }
+
+        function createCayleyGraphScene() {
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            const renderer = new THREE.WebGLRenderer();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            document.body.appendChild(renderer.domElement);
+
+            const controls = new OrbitControls(camera, renderer.domElement);
+            camera.position.z = 5;
+
+            const cayleyGraphEdges = getCayleyGraph().map(([start, end]) => ({ start, end }));
+
+            const edgesGeometry = new THREE.BufferGeometry();
+            const vertices = new Float32Array(cayleyGraphEdges.length * 3 * 2);
+
+            for (let i = 0; i < cayleyGraphEdges.length; i++) {
+                const { start, end } = cayleyGraphEdges[i];
+                vertices[i * 6] = start;
+                vertices[i * 6 + 1] = 0;
+                vertices[i * 6 + 2] = 0;
+                vertices[i * 6 + 3] = end;
+                vertices[i * 6 + 4] = 0;
+                vertices[i * 6 + 5] = 0;
+            }
+
+            edgesGeometry.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
+
+            const edgesMaterial = new THREE.LineBasicMaterial({ color: 0xffffff });
+            const edges = new THREE.LineSegments(edgesGeometry, edgesMaterial);
+
+            scene.add(edges);
+
+            const animate = () => {
+                requestAnimationFrame(animate);
+
+                controls.update();
+
+                renderer.render(scene, camera);
+            };
+
+            animate();
+
+            window.addEventListener('resize', () => {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            });
+
+            return scene;
+        }
+
+        createCayleyGraphScene();
+    </script>
+</body>
+</html>
