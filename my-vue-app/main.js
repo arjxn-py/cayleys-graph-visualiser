@@ -90,9 +90,9 @@ orderInput.min = '1';
 orderInput.addEventListener('change', updateGraph);
 
 const generatorInput = document.createElement('input');
-generatorInput.type = 'number';
+generatorInput.type = 'text';
 generatorInput.value = '6';
-generatorInput.min = '1';
+generatorInput.min = '0';
 generatorInput.addEventListener('change', updateGraph);
 
 // Append input elements to the body
@@ -140,14 +140,17 @@ function updateGraph() {
     // Generate and add the selected graph to the scene
     if (selectedGraphType === 'permutation') {
         const orderPermutation = parseInt(orderInput.value, 10);
-        const generatingSetPermutation = [1, 5];
+        const generatorsInputValue = generatorInput.value.trim();
+        const generatingSetPermutation = generatorsInputValue ? generatorsInputValue.split(',').map(Number) : [];
+        console.log(generatingSetPermutation);
         const permutationGraph = generateCayleysPermutationGraph(orderPermutation, generatingSetPermutation, 0);
 
         scene.add(permutationGraph.group);
         scene.add(permutationGraph.edgesGroup);
     } else if (selectedGraphType === 'cyclic') {
         const orderCyclic = parseInt(orderInput.value, 10);
-        const generatorCyclic = parseInt(generatorInput.value, 10);
+        const generatorInputValue = generatorInput.value.trim();
+        const generatorCyclic = generatorInputValue ? parseFloat(generatorInputValue) : 0;
         const cyclicGraph = generateCayleysCyclicGraph(orderCyclic, generatorCyclic, 0);
 
         scene.add(cyclicGraph.group);
