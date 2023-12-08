@@ -10,15 +10,17 @@ const generateCayleysPermutationGraph = (order, generators, xOffset, numPlanes) 
 
     const radius = 0.1 + 0.5 * Math.sqrt(order);
 
+    // Create an array for z offsets
+    const zOffsets = Array.from({ length: order }, (_, i) => (i % numPlanes*0.5));
+
     const nodes = elements.map(element => {
         const sphereGeometry = new THREE.SphereGeometry(0.1);
         const sphereMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
 
-        // Calculate the current plane index
-        const planeIndex = Math.floor(element / (order / numPlanes));
+        // Use zOffsets array to alternate ahead and behind
+        const zOffset = zOffsets[element];
 
         const theta = (2 * Math.PI * element) / order;
-        const zOffset = planeIndex % 2 === 0 ? planeIndex * 0.5 : -(planeIndex + 1) * 0.5; // Alternate ahead and behind
         const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
         sphere.position.set(xOffset + radius * Math.cos(theta), radius * Math.sin(theta), zOffset);
         group.add(sphere);
@@ -55,15 +57,17 @@ const generateCayleysCyclicGraph = (order, generator, xOffset, numPlanes) => {
 
     const radius = 0.1 + 0.5 * Math.sqrt(order);
 
+    // Create an array for z offsets
+    const zOffsets = Array.from({ length: order }, (_, i) => (i % numPlanes*0.5));
+
     const nodes = elements.map(element => {
         const sphereGeometry = new THREE.SphereGeometry(0.1);
         const sphereMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
 
-        // Calculate the current plane index
-        const planeIndex = Math.floor(element / (order / numPlanes));
+        // Use zOffsets array to alternate ahead and behind
+        const zOffset = zOffsets[element];
 
         const theta = (2 * Math.PI * element) / order;
-        const zOffset = planeIndex % 2 === 0 ? planeIndex * 0.5 : -(planeIndex + 1) * 0.5; // Alternate ahead and behind
         const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
         sphere.position.set(xOffset + radius * Math.cos(theta), radius * Math.sin(theta), zOffset);
         group.add(sphere);
@@ -89,6 +93,8 @@ const generateCayleysCyclicGraph = (order, generator, xOffset, numPlanes) => {
 
     return { group, edgesGroup };
 };
+
+
 
 
 // Set up common scene, camera, renderer, and controls
