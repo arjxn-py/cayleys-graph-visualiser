@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+import SpriteText from 'three-spritetext';
 
 // Function to generate Cayley's permutation graph for a group
 const generateCayleysPermutationGraph = (order, generators, xOffset) => {
@@ -14,6 +15,13 @@ const generateCayleysPermutationGraph = (order, generators, xOffset) => {
         const theta = (2 * Math.PI * element) / order; // Regular spacing for permutation elements
         sphere.position.set(xOffset + Math.cos(theta), Math.sin(theta), 0);
         group.add(sphere);
+
+        // Label the sphere with a number
+        const textSprite = new SpriteText(element.toString());
+        textSprite.textHeight = 0.2;
+        textSprite.position.set(xOffset + Math.cos(theta), Math.sin(theta), 0.3); // Adjust the position in z-axis for label
+        group.add(textSprite);
+
         return sphere;
     });
 
@@ -45,6 +53,13 @@ const generateCayleysCyclicGraph = (order, generator, xOffset) => {
         const theta = (2 * Math.PI * element) / order; // Regular spacing for cyclic elements
         sphere.position.set(xOffset + Math.cos(theta), Math.sin(theta), 0);
         group.add(sphere);
+
+        // Label the sphere with a number
+        const textSprite = new SpriteText(element.toString());
+        textSprite.textHeight = 0.2;
+        textSprite.position.set(xOffset + Math.cos(theta), Math.sin(theta), 0.3); // Adjust the position in z-axis for label
+        group.add(textSprite);
+
         return sphere;
     });
 
