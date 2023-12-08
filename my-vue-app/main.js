@@ -1,8 +1,8 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 
-// Function to generate Cayley's graph for a cyclic group
-const generateCayleysGraph = (groupOrder, generator) => {
+// Function to generate Cayley's graph for a group
+const generateCayleysGraph = (groupElements, generator) => {
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
   camera.position.z = 5;
@@ -20,11 +20,12 @@ const generateCayleysGraph = (groupOrder, generator) => {
   const verticesGroup = new THREE.Group();
   scene.add(verticesGroup);
 
-  const elements = Array.from({ length: groupOrder }, (_, i) => i);
+  const elements = groupElements;
 
   const vertices = elements.map(element => {
     const vertex = new THREE.Mesh(new THREE.SphereGeometry(0.1), new THREE.MeshBasicMaterial({ color: 0xff0000 }));
-    vertex.position.set(Math.cos((2 * Math.PI * element) / groupOrder), Math.sin((2 * Math.PI * element) / groupOrder), 0);
+    const theta = Math.random() * 2 * Math.PI; // Randomize vertex position
+    vertex.position.set(Math.cos(theta), Math.sin(theta), 0);
     verticesGroup.add(vertex);
     return vertex;
   });
@@ -33,7 +34,7 @@ const generateCayleysGraph = (groupOrder, generator) => {
   scene.add(edgesGroup);
 
   elements.forEach(element => {
-    const targetElement = (element + generator) % groupOrder;
+    const targetElement = (element * generator) % elements.length;
     const lineGeometry = new THREE.BufferGeometry().setFromPoints([vertices[element].position, vertices[targetElement].position]);
     const line = new THREE.Line(lineGeometry, new THREE.LineBasicMaterial({ color: 0xffffff }));
     edgesGroup.add(line);
@@ -66,5 +67,7 @@ const generateCayleysGraph = (groupOrder, generator) => {
   animate();
 };
 
-// Call the function to generate and visualize Cayley's graph
-generateCayleysGraph(8, 2); // Example with a cyclic group of order 8 and generator 2
+// Example: Generate and visualize Cayley's graph with a random group and generator
+const randomGroup = Array.from({ length: 10 }, (_, i) => i); // Replace with your desired group size
+const randomGenerator = Math.floor(Math.random() * randomGroup.length);
+generateCayleysGraph(randomGroup, randomGenerator);
