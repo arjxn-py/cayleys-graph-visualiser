@@ -150,6 +150,51 @@ const generateHyperbolicCayleyGraph = (order, generators, xOffset, numPlanes) =>
 };
 
 
+// Function to generate Dihedral Cayley Graph for a group
+const generateDihedralCayleyGraph = (n, xOffset, numLevels) => {
+    const group = new THREE.Group();
+
+    const elements = Array.from({ length: 2 * n }, (_, i) => i);
+
+    const radius = 0.1 + 0.5 * Math.sqrt(2 * n);
+    const zOffsets = Array.from({ length: 2 * n }, (_, i) => (i % numLevels));
+
+    const nodes = elements.map(element => {
+        const theta = (2 * Math.PI * element) / (2 * n);
+        const x = xOffset + radius * Math.cos(theta);
+        const y = radius * Math.sin(theta);
+
+        const sphereGeometry = new THREE.SphereGeometry(0.1);
+        const sphereMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+        const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
+
+        const zOffset = zOffsets[element];
+
+        sphere.position.set(x, y, zOffset);
+        group.add(sphere);
+
+        // Label the sphere with a number
+        const textSprite = new SpriteText(element.toString());
+        textSprite.textHeight = 0.1;
+        textSprite.position.set(x, y, 0.3);
+        group.add(textSprite);
+
+        return sphere;
+    });
+
+    const edgesGroup = new THREE.Group();
+
+    elements.forEach(element => {
+        const targetElement = (element + 1) % (2 * n); // Connect each element to the next one
+        const lineGeometry = new THREE.BufferGeometry().setFromPoints([nodes[element].position, nodes[targetElement].position]);
+        const lineMaterial = new THREE.LineBasicMaterial({ color: 0xffffff });
+        const line = new THREE.Line(lineGeometry, lineMaterial);
+        edgesGroup.add(line);
+    });
+
+    return { group, edgesGroup };
+};
+
 
 
 // Set up common scene, camera, renderer, and controls
@@ -170,7 +215,7 @@ controls.maxPolarAngle = Math.PI / 2;
 // Dropdown menu for graph selection
 // Create the dropdown element
 const graphTypeDropdown = document.createElement('select');
-graphTypeDropdown.innerHTML = '<option value="permutation">Permutation Graph</option><option value="cyclic">Cyclic Graph</option></option><option value="hyperbolic">Hyperbolic Graph</option>';
+graphTypeDropdown.innerHTML = '<option value="permutation">Permutation Graph</option><option value="cyclic">Cyclic Graph</option></option><option value="hyperbolic">Hyperbolic Graph</option><option value="dihedral">Dihedral Graph</option>';
 document.body.appendChild(graphTypeDropdown);
 
 // Create the input elements
@@ -266,12 +311,18 @@ function updateGraph() {
         const orderHyperbolic = parseInt(orderInput.value, 10);
         const generatorInputValue = generatorInput.value.trim();
         const generatorHyperbolic = generatorInputValue ? parseFloat(generatorInputValue) : 0;
-        console.log(generatorHyperbolic);
         const numPlanesInputValue = parseInt(numPlanesInput.value,10);
         const hyperbolicGraph = generateHyperbolicCayleyGraph(orderHyperbolic, generatorHyperbolic, 0, numPlanesInputValue);
 
         scene.add(hyperbolicGraph.group);
         scene.add(hyperbolicGraph.edgesGroup);
+    } else if (selectedGraphType === 'dihedral') {
+        const orderDihedral = parseInt(orderInput.value, 10);
+        const numPlanesInputValue = parseInt(numPlanesInput.value,10);
+        const dihedralGraph = generateDihedralCayleyGraph(orderDihedral, 0, numPlanesInputValue);
+
+        scene.add(dihedralGraph.group);
+        scene.add(dihedralGraph.edgesGroup);
     }
 }
 
