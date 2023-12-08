@@ -15,7 +15,7 @@ const generateCayleysPermutationGraph = (order, generators, xOffset, numPlanes) 
 
     const nodes = elements.map(element => {
         const sphereGeometry = new THREE.SphereGeometry(0.1);
-        const sphereMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+        const sphereMaterial = new THREE.MeshBasicMaterial({ color: 0xe6194B });
 
         // Use zOffsets array to alternate ahead and behind
         const zOffset = zOffsets[element];
@@ -26,7 +26,7 @@ const generateCayleysPermutationGraph = (order, generators, xOffset, numPlanes) 
         group.add(sphere);
 
         // Label the sphere with a number
-        const textSprite = new SpriteText(element.toString());
+        const textSprite = new SpriteText((element+1).toString());
         textSprite.textHeight = 0.1;
         textSprite.position.set(xOffset + radius * Math.cos(theta), radius * Math.sin(theta), 0.3);
         group.add(textSprite);
@@ -62,7 +62,7 @@ const generateCayleysCyclicGraph = (order, generator, xOffset, numPlanes) => {
 
     const nodes = elements.map(element => {
         const sphereGeometry = new THREE.SphereGeometry(0.1);
-        const sphereMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+        const sphereMaterial = new THREE.MeshBasicMaterial({ color: 0xbfef45 });
 
         // Use zOffsets array to alternate ahead and behind
         const zOffset = zOffsets[element];
@@ -73,8 +73,9 @@ const generateCayleysCyclicGraph = (order, generator, xOffset, numPlanes) => {
         group.add(sphere);
 
         // Label the sphere with a number
-        const textSprite = new SpriteText(element.toString());
+        const textSprite = new SpriteText((element+1).toString());
         textSprite.textHeight = 0.1;
+        textSprite.material.color.set(0x0066CC)
         textSprite.position.set(xOffset + radius * Math.cos(theta), radius * Math.sin(theta), 0.3);
         group.add(textSprite);
 
@@ -111,7 +112,7 @@ const generateHyperbolicCayleyGraph = (order, generators, xOffset, numPlanes) =>
         const y = r * Math.sin(theta);
 
         const sphereGeometry = new THREE.SphereGeometry(0.1);
-        const sphereMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+        const sphereMaterial = new THREE.MeshBasicMaterial({ color: 0xf032e6 });
         const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
 
         // Introduce radial layers based on numPlanes
@@ -121,7 +122,7 @@ const generateHyperbolicCayleyGraph = (order, generators, xOffset, numPlanes) =>
         group.add(sphere);
 
         // Label the sphere with a number
-        const textSprite = new SpriteText(element.toString());
+        const textSprite = new SpriteText((element+1).toString());
         textSprite.textHeight = 0.1;
         textSprite.position.set(x, y, 0.3);
         group.add(textSprite);
@@ -165,7 +166,7 @@ const generateDihedralCayleyGraph = (n, xOffset, numLevels) => {
         const y = radius * Math.sin(theta);
 
         const sphereGeometry = new THREE.SphereGeometry(0.1);
-        const sphereMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+        const sphereMaterial = new THREE.MeshBasicMaterial({ color: 0xfffac8 });
         const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
 
         const zOffset = zOffsets[element];
@@ -174,7 +175,8 @@ const generateDihedralCayleyGraph = (n, xOffset, numLevels) => {
         group.add(sphere);
 
         // Label the sphere with a number
-        const textSprite = new SpriteText(element.toString());
+        const textSprite = new SpriteText((element+1).toString());
+        textSprite.material.color.set(0x3cb44b)
         textSprite.textHeight = 0.1;
         textSprite.position.set(x, y, 0.3);
         group.add(textSprite);
@@ -209,7 +211,7 @@ const generateAbelianCayleyGraph = (order, generators, xOffset, numPlanes) => {
 
     const nodes = elements.map(element => {
         const sphereGeometry = new THREE.SphereGeometry(0.1);
-        const sphereMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+        const sphereMaterial = new THREE.MeshBasicMaterial({ color: 0xaaffc3 });
 
         // Use zOffsets array to alternate ahead and behind
         const zOffset = zOffsets[element];
@@ -220,7 +222,8 @@ const generateAbelianCayleyGraph = (order, generators, xOffset, numPlanes) => {
         group.add(sphere);
 
         // Label the sphere with a number
-        const textSprite = new SpriteText(element.toString());
+        const textSprite = new SpriteText((element+1).toString());
+        textSprite.material.color.set(0xf58231)
         textSprite.textHeight = 0.1;
         textSprite.position.set(xOffset + radius * Math.cos(theta), radius * Math.sin(theta), 0.3);
         group.add(textSprite);
