@@ -95,6 +95,61 @@ const generateCayleysCyclicGraph = (order, generator, xOffset, numPlanes) => {
 };
 
 
+// Function to generate Hyperbolic Cayley Graph for a group
+const generateHyperbolicCayleyGraph = (order, generators, xOffset, numPlanes) => {
+    const group = new THREE.Group();
+
+    const elements = Array.from({ length: order }, (_, i) => i);
+
+    const radius = 0.1 + 0.5 * Math.sqrt(order);; // Radius for the Poincaré disk model
+
+    const nodes = elements.map(element => {
+        // Convert polar coordinates to Cartesian coordinates in the Poincaré disk model
+        const theta = (2 * Math.PI * element) / order;
+        const r = radius * Math.sqrt(1 - Math.pow(element / order, 2)); // Hyperbolic radius
+        const x = xOffset + r * Math.cos(theta);
+        const y = r * Math.sin(theta);
+
+        const sphereGeometry = new THREE.SphereGeometry(0.1);
+        const sphereMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+        const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
+
+        // Introduce radial layers based on numPlanes
+        const zOffset = (element % numPlanes) * 0.5;
+
+        sphere.position.set(x, y, zOffset);
+        group.add(sphere);
+
+        // Label the sphere with a number
+        const textSprite = new SpriteText(element.toString());
+        textSprite.textHeight = 0.1;
+        textSprite.position.set(x, y, 0.3);
+        group.add(textSprite);
+
+        return sphere;
+    });
+
+    const edgesGroup = new THREE.Group();
+
+    elements.forEach(element => {
+        // Ensure generators is treated as an array
+        if (!Array.isArray(generators)) {
+            generators = [generators];
+        }
+
+        generators.forEach(gen => {
+            const targetElement = (element + gen) % order;
+            const lineGeometry = new THREE.BufferGeometry().setFromPoints([nodes[element].position, nodes[targetElement].position]);
+            const lineMaterial = new THREE.LineBasicMaterial({ color: 0xffffff });
+            const line = new THREE.Line(lineGeometry, lineMaterial);
+            edgesGroup.add(line);
+        });
+    });
+
+    return { group, edgesGroup };
+};
+
+
 
 
 // Set up common scene, camera, renderer, and controls
@@ -115,7 +170,7 @@ controls.maxPolarAngle = Math.PI / 2;
 // Dropdown menu for graph selection
 // Create the dropdown element
 const graphTypeDropdown = document.createElement('select');
-graphTypeDropdown.innerHTML = '<option value="permutation">Permutation Graph</option><option value="cyclic">Cyclic Graph</option>';
+graphTypeDropdown.innerHTML = '<option value="permutation">Permutation Graph</option><option value="cyclic">Cyclic Graph</option></option><option value="hyperbolic">Hyperbolic Graph</option>';
 document.body.appendChild(graphTypeDropdown);
 
 // Create the input elements
@@ -207,6 +262,16 @@ function updateGraph() {
 
         scene.add(cyclicGraph.group);
         scene.add(cyclicGraph.edgesGroup);
+    } else if (selectedGraphType === 'hyperbolic') {
+        const orderHyperbolic = parseInt(orderInput.value, 10);
+        const generatorInputValue = generatorInput.value.trim();
+        const generatorHyperbolic = generatorInputValue ? parseFloat(generatorInputValue) : 0;
+        console.log(generatorHyperbolic);
+        const numPlanesInputValue = parseInt(numPlanesInput.value,10);
+        const hyperbolicGraph = generateHyperbolicCayleyGraph(orderHyperbolic, generatorHyperbolic, 0, numPlanesInputValue);
+
+        scene.add(hyperbolicGraph.group);
+        scene.add(hyperbolicGraph.edgesGroup);
     }
 }
 
