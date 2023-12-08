@@ -196,6 +196,61 @@ const generateDihedralCayleyGraph = (n, xOffset, numLevels) => {
 };
 
 
+// Function to generate Abelian Cayley Graph for a group
+const generateAbelianCayleyGraph = (order, generators, xOffset, numPlanes) => {
+    const group = new THREE.Group();
+
+    const elements = Array.from({ length: order }, (_, i) => i);
+
+    const radius = 0.1 + 0.5 * Math.sqrt(order);
+
+    // Create an array for z offsets
+    const zOffsets = Array.from({ length: order }, (_, i) => (i % numPlanes) * 0.5);
+
+    const nodes = elements.map(element => {
+        const sphereGeometry = new THREE.SphereGeometry(0.1);
+        const sphereMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+
+        // Use zOffsets array to alternate ahead and behind
+        const zOffset = zOffsets[element];
+
+        const theta = (2 * Math.PI * element) / order;
+        const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
+        sphere.position.set(xOffset + radius * Math.cos(theta), radius * Math.sin(theta), zOffset);
+        group.add(sphere);
+
+        // Label the sphere with a number
+        const textSprite = new SpriteText(element.toString());
+        textSprite.textHeight = 0.1;
+        textSprite.position.set(xOffset + radius * Math.cos(theta), radius * Math.sin(theta), 0.3);
+        group.add(textSprite);
+
+        return sphere;
+    });
+
+    const edgesGroup = new THREE.Group();
+
+    elements.forEach(element => {
+        if (Array.isArray(generators)) {
+            generators.forEach(gen => {
+                const targetElement = (element + gen) % order;
+                const lineGeometry = new THREE.BufferGeometry().setFromPoints([nodes[element].position, nodes[targetElement].position]);
+                const lineMaterial = new THREE.LineBasicMaterial({ color: 0xffffff });
+                const line = new THREE.Line(lineGeometry, lineMaterial);
+                edgesGroup.add(line);
+            });
+        } else {
+            const targetElement = (element + generators) % order;
+            const lineGeometry = new THREE.BufferGeometry().setFromPoints([nodes[element].position, nodes[targetElement].position]);
+            const lineMaterial = new THREE.LineBasicMaterial({ color: 0xffffff });
+            const line = new THREE.Line(lineGeometry, lineMaterial);
+            edgesGroup.add(line);
+        }
+    });
+
+    return { group, edgesGroup };
+};
+
 
 // Set up common scene, camera, renderer, and controls
 const scene = new THREE.Scene();
@@ -215,7 +270,7 @@ controls.maxPolarAngle = Math.PI / 2;
 // Dropdown menu for graph selection
 // Create the dropdown element
 const graphTypeDropdown = document.createElement('select');
-graphTypeDropdown.innerHTML = '<option value="permutation">Permutation Graph</option><option value="cyclic">Cyclic Graph</option></option><option value="hyperbolic">Hyperbolic Graph</option><option value="dihedral">Dihedral Graph</option>';
+graphTypeDropdown.innerHTML = '<option value="permutation">Permutation Graph</option><option value="cyclic">Cyclic Graph</option></option><option value="hyperbolic">Hyperbolic Graph</option><option value="dihedral">Dihedral Graph</option><option value="abelian">Abelian Graph</option>';
 document.body.appendChild(graphTypeDropdown);
 
 // Create the input elements
@@ -323,6 +378,15 @@ function updateGraph() {
 
         scene.add(dihedralGraph.group);
         scene.add(dihedralGraph.edgesGroup);
+    } else if (selectedGraphType === 'abelian') {
+        const orderAbelian = parseInt(orderInput.value, 10);
+        const generatorInputValue = generatorInput.value.trim();
+        const generatorAbelian = generatorInputValue ? parseFloat(generatorInputValue) : 0;
+        const numPlanesInputValue = parseInt(numPlanesInput.value,10);
+        const abelianGraph = generateAbelianCayleyGraph(orderAbelian, generatorAbelian, 0, numPlanesInputValue);
+
+        scene.add(abelianGraph.group);
+        scene.add(abelianGraph.edgesGroup);
     }
 }
 
