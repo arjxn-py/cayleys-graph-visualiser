@@ -76,21 +76,60 @@ controls.dampingFactor = 0.25;
 controls.screenSpacePanning = false;
 controls.maxPolarAngle = Math.PI / 2;
 
-// Example: Generate and visualize Cayley's permutation graph with a specific order and generating set
-const orderPermutation = 10; // Set your desired permutation group order
-const generatingSetPermutation = [1, 5]; // Set your desired generating set for permutation
-const permutationGraph = generateCayleysPermutationGraph(orderPermutation, generatingSetPermutation, 0);
+// // Example: Generate and visualize Cayley's permutation graph with a specific order and generating set
+// const orderPermutation = 10; // Set your desired permutation group order
+// const generatingSetPermutation = [1, 5]; // Set your desired generating set for permutation
+// const permutationGraph = generateCayleysPermutationGraph(orderPermutation, generatingSetPermutation, 0);
 
-// Example: Generate and visualize Cayley's cyclic graph with a specific order and generator
-const orderCyclic = 10; // Set your desired cyclic group order
-const generatorCyclic = 6; // Set your desired generator for cyclic
-const cyclicGraph = generateCayleysCyclicGraph(orderCyclic, generatorCyclic, 3);
+// // Example: Generate and visualize Cayley's cyclic graph with a specific order and generator
+// const orderCyclic = 10; // Set your desired cyclic group order
+// const generatorCyclic = 6; // Set your desired generator for cyclic
+// const cyclicGraph = generateCayleysCyclicGraph(orderCyclic, generatorCyclic, 3);
 
-// Add permutation and cyclic graph elements to the common scene
-scene.add(permutationGraph.group);
-scene.add(permutationGraph.edgesGroup);
-scene.add(cyclicGraph.group);
-scene.add(cyclicGraph.edgesGroup);
+// Dropdown menu for graph selection
+// Create the dropdown element
+const graphTypeDropdown = document.createElement('select');
+graphTypeDropdown.innerHTML = '<option value="permutation">Permutation Graph</option><option value="cyclic">Cyclic Graph</option>';
+document.body.appendChild(graphTypeDropdown);
+
+// Apply styles to the dropdown
+graphTypeDropdown.style.position = 'fixed';
+graphTypeDropdown.style.top = '10px';
+graphTypeDropdown.style.left = '10px';
+graphTypeDropdown.style.padding = '5px';
+graphTypeDropdown.style.borderRadius = '5px';
+graphTypeDropdown.style.backgroundColor = '#fff';
+graphTypeDropdown.style.border = '1px solid #ccc';
+
+// Event listener for dropdown change
+graphTypeDropdown.addEventListener('change', () => {
+  const selectedGraphType = graphTypeDropdown.value;
+
+  // Remove existing nodes and edges groups from the scene
+  const nodesGroups = scene.children.filter(child => child instanceof THREE.Group);
+  nodesGroups.forEach(nodesGroup => {
+    scene.remove(nodesGroup);
+  });
+
+  // Generate and add the selected graph to the scene
+  if (selectedGraphType === 'permutation') {
+    const orderPermutation = 10;
+    const generatingSetPermutation = [1, 5];
+    const permutationGraph = generateCayleysPermutationGraph(orderPermutation, generatingSetPermutation, 0);
+
+    scene.add(permutationGraph.group);
+    scene.add(permutationGraph.edgesGroup);
+  } else if (selectedGraphType === 'cyclic') {
+    const orderCyclic = 10;
+    const generatorCyclic = 6;
+    const cyclicGraph = generateCayleysCyclicGraph(orderCyclic, generatorCyclic, 0);
+
+    scene.add(cyclicGraph.group);
+    scene.add(cyclicGraph.edgesGroup);
+  }
+});
+
+
 
 // Add lights to the scene
 const ambientLight = new THREE.AmbientLight(0x404040);
