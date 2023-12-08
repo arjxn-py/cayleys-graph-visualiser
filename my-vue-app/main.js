@@ -8,18 +8,20 @@ const generateCayleysPermutationGraph = (order, generators, xOffset) => {
 
     const elements = Array.from({ length: order }, (_, i) => i);
 
+    const radius = 0.1 + 0.5 * Math.sqrt(order);
+
     const nodes = elements.map(element => {
-        const sphereGeometry = new THREE.SphereGeometry(0.2);
+        const sphereGeometry = new THREE.SphereGeometry(0.1);
         const sphereMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
         const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
-        const theta = (2 * Math.PI * element) / order; // Regular spacing for permutation elements
-        sphere.position.set(xOffset + Math.cos(theta), Math.sin(theta), 0);
+        const theta = (2 * Math.PI * element) / order;
+        sphere.position.set(xOffset + radius * Math.cos(theta), radius * Math.sin(theta), 0);
         group.add(sphere);
 
         // Label the sphere with a number
         const textSprite = new SpriteText(element.toString());
-        textSprite.textHeight = 0.2;
-        textSprite.position.set(xOffset + Math.cos(theta), Math.sin(theta), 0.3); // Adjust the position in z-axis for label
+        textSprite.textHeight = 0.1;
+        textSprite.position.set(xOffset + radius * Math.cos(theta), radius * Math.sin(theta), 0.3);
         group.add(textSprite);
 
         return sphere;
@@ -29,7 +31,7 @@ const generateCayleysPermutationGraph = (order, generators, xOffset) => {
 
     elements.forEach(element => {
         generators.forEach(gen => {
-            const targetElement = (element + gen) % order; // Permutation composition: (element + gen) % order
+            const targetElement = (element + gen) % order;
             const lineGeometry = new THREE.BufferGeometry().setFromPoints([nodes[element].position, nodes[targetElement].position]);
             const lineMaterial = new THREE.LineBasicMaterial({ color: 0xffffff });
             const line = new THREE.Line(lineGeometry, lineMaterial);
@@ -46,18 +48,20 @@ const generateCayleysCyclicGraph = (order, generator, xOffset) => {
 
     const elements = Array.from({ length: order }, (_, i) => i);
 
+    const radius = 0.1 + 0.5 * Math.sqrt(order);
+
     const nodes = elements.map(element => {
-        const sphereGeometry = new THREE.SphereGeometry(0.2);
+        const sphereGeometry = new THREE.SphereGeometry(0.1);
         const sphereMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
         const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
-        const theta = (2 * Math.PI * element) / order; // Regular spacing for cyclic elements
-        sphere.position.set(xOffset + Math.cos(theta), Math.sin(theta), 0);
+        const theta = (2 * Math.PI * element) / order;
+        sphere.position.set(xOffset + radius * Math.cos(theta), radius * Math.sin(theta), 0);
         group.add(sphere);
 
         // Label the sphere with a number
         const textSprite = new SpriteText(element.toString());
-        textSprite.textHeight = 0.2;
-        textSprite.position.set(xOffset + Math.cos(theta), Math.sin(theta), 0.3); // Adjust the position in z-axis for label
+        textSprite.textHeight = 0.1;
+        textSprite.position.set(xOffset + radius * Math.cos(theta), radius * Math.sin(theta), 0.3);
         group.add(textSprite);
 
         return sphere;
@@ -66,7 +70,7 @@ const generateCayleysCyclicGraph = (order, generator, xOffset) => {
     const edgesGroup = new THREE.Group();
 
     elements.forEach(element => {
-        const targetElement = (element + generator) % order; // Cyclic composition: (element + generator) % order
+        const targetElement = (element + generator) % order;
         const lineGeometry = new THREE.BufferGeometry().setFromPoints([nodes[element].position, nodes[targetElement].position]);
         const lineMaterial = new THREE.LineBasicMaterial({ color: 0xffffff });
         const line = new THREE.Line(lineGeometry, lineMaterial);
