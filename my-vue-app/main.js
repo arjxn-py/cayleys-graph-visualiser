@@ -3,7 +3,7 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import SpriteText from 'three-spritetext';
 
 // Function to generate Cayley's permutation graph for a group
-const generateCayleysPermutationGraph = (order, generators, xOffset) => {
+const generateCayleysPermutationGraph = (order, generators, xOffset, numPlanes) => {
     const group = new THREE.Group();
 
     const elements = Array.from({ length: order }, (_, i) => i);
@@ -13,9 +13,14 @@ const generateCayleysPermutationGraph = (order, generators, xOffset) => {
     const nodes = elements.map(element => {
         const sphereGeometry = new THREE.SphereGeometry(0.1);
         const sphereMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
-        const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
+
+        // Calculate the current plane index
+        const planeIndex = Math.floor(element / (order / numPlanes));
+
         const theta = (2 * Math.PI * element) / order;
-        sphere.position.set(xOffset + radius * Math.cos(theta), radius * Math.sin(theta), 0);
+        const zOffset = planeIndex % 2 === 0 ? planeIndex * 0.5 : -(planeIndex + 1) * 0.5; // Alternate ahead and behind
+        const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
+        sphere.position.set(xOffset + radius * Math.cos(theta), radius * Math.sin(theta), zOffset);
         group.add(sphere);
 
         // Label the sphere with a number
@@ -43,7 +48,7 @@ const generateCayleysPermutationGraph = (order, generators, xOffset) => {
 };
 
 // Function to generate Cayley's cyclic graph for a group
-const generateCayleysCyclicGraph = (order, generator, xOffset) => {
+const generateCayleysCyclicGraph = (order, generator, xOffset, numPlanes) => {
     const group = new THREE.Group();
 
     const elements = Array.from({ length: order }, (_, i) => i);
@@ -53,9 +58,14 @@ const generateCayleysCyclicGraph = (order, generator, xOffset) => {
     const nodes = elements.map(element => {
         const sphereGeometry = new THREE.SphereGeometry(0.1);
         const sphereMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
-        const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
+
+        // Calculate the current plane index
+        const planeIndex = Math.floor(element / (order / numPlanes));
+
         const theta = (2 * Math.PI * element) / order;
-        sphere.position.set(xOffset + radius * Math.cos(theta), radius * Math.sin(theta), 0);
+        const zOffset = planeIndex % 2 === 0 ? planeIndex * 0.5 : -(planeIndex + 1) * 0.5; // Alternate ahead and behind
+        const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
+        sphere.position.set(xOffset + radius * Math.cos(theta), radius * Math.sin(theta), zOffset);
         group.add(sphere);
 
         // Label the sphere with a number
@@ -79,6 +89,7 @@ const generateCayleysCyclicGraph = (order, generator, xOffset) => {
 
     return { group, edgesGroup };
 };
+
 
 // Set up common scene, camera, renderer, and controls
 const scene = new THREE.Scene();
@@ -114,9 +125,16 @@ generatorInput.value = '6';
 generatorInput.min = '0';
 generatorInput.addEventListener('change', updateGraph);
 
+const numPlanesInput = document.createElement('input');
+numPlanesInput.type = 'number';
+numPlanesInput.value = '1';
+numPlanesInput.min = '0';
+numPlanesInput.addEventListener('change', updateGraph);
+
 // Append input elements to the body
 document.body.appendChild(orderInput);
 document.body.appendChild(generatorInput);
+document.body.appendChild(numPlanesInput);
 
 // Apply styles to the dropdown and input elements
 graphTypeDropdown.style.position = 'fixed';
@@ -143,6 +161,14 @@ generatorInput.style.borderRadius = '5px';
 generatorInput.style.backgroundColor = '#fff';
 generatorInput.style.border = '1px solid #ccc';
 
+numPlanesInput.style.position = 'fixed';
+numPlanesInput.style.top = '130px';
+numPlanesInput.style.left = '10px';
+numPlanesInput.style.padding = '5px';
+numPlanesInput.style.borderRadius = '5px';
+numPlanesInput.style.backgroundColor = '#fff';
+numPlanesInput.style.border = '1px solid #ccc';
+
 // Event listener for dropdown change
 graphTypeDropdown.addEventListener('change', updateGraph);
 
@@ -161,8 +187,8 @@ function updateGraph() {
         const orderPermutation = parseInt(orderInput.value, 10);
         const generatorsInputValue = generatorInput.value.trim();
         const generatingSetPermutation = generatorsInputValue ? generatorsInputValue.split(',').map(Number) : [];
-        console.log(generatingSetPermutation);
-        const permutationGraph = generateCayleysPermutationGraph(orderPermutation, generatingSetPermutation, 0);
+        const numPlanesInputValue = parseInt(numPlanesInput.value,10);
+        const permutationGraph = generateCayleysPermutationGraph(orderPermutation, generatingSetPermutation, 0, numPlanesInputValue);
 
         scene.add(permutationGraph.group);
         scene.add(permutationGraph.edgesGroup);
@@ -170,7 +196,8 @@ function updateGraph() {
         const orderCyclic = parseInt(orderInput.value, 10);
         const generatorInputValue = generatorInput.value.trim();
         const generatorCyclic = generatorInputValue ? parseFloat(generatorInputValue) : 0;
-        const cyclicGraph = generateCayleysCyclicGraph(orderCyclic, generatorCyclic, 0);
+        const numPlanesInputValue = parseInt(numPlanesInput.value,10);
+        const cyclicGraph = generateCayleysCyclicGraph(orderCyclic, generatorCyclic, 0, numPlanesInputValue);
 
         scene.add(cyclicGraph.group);
         scene.add(cyclicGraph.edgesGroup);
